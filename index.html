@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <link rel="stylesheet" href="bootstrap.min.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col-6">
+          <form>
+            <div class="form-group">
+              <label for="from">From:</label>
+              <select name="from" id="from" class="dropdown form-control"> </select>
+            </div>
+            <div class="form-group">
+              <label for="to">To</label>
+              <select name="to" id="to" class="dropdown form-control"> </select>
+            </div>
+            <div class="form-group">
+              <label for="three">Amount</label>
+              <input type="number" min="1" value="1" name="amount" id="amount" class="form-control" />
+            </div>
+
+            <div class="form-group">
+              <button type="button" class="form-control btn btn-primary" onclick="convert()">Convert</button>
+            </div>
+            <div class="jumbotron">
+              <h5 id="result"></h5>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script src="jquery-3.2.1.min.js"></script>
+
+    <script>
+      let apiKey = '1dd673dcc339124eab0b';
+      let baseUrl = 'https://free.currconv.com/api/v7/';
+      $('document').ready(function() {
+        $.ajax({
+          url: baseUrl + 'countries?apiKey=' + apiKey,
+          type: 'GET',
+          success: function(data) {
+            $dropdown = $('.dropdown');
+
+            $.each(data.results, function() {
+              $dropdown.append(
+                $('<option />')
+                  .val(this.currencyId)
+                  .text(this.name + ' (' + this.currencyId + ')')
+              );
+            });
+          }
+        });
+      });
+
+      async function convert() {
+        let from = $('#from').val();
+        let to = $('#to').val();
+        let amount = $('#amount').val();
+        let data = await exchangeRate(from, to);
+        rate = data[Object.keys(data)[0]].val;
+
+        $('#result').html(
+          rate * amount + ' ' + to + "<br/> Exchange Rate is: <span class='text-success'>" + rate + '</span>'
+        );
+      }
+
+      function exchangeRate(from, to) {
+        let rate = null;
+        return Promise.resolve(
+          $.ajax({
+            url: 'https://free.currconv.com/api/v7/convert?q=' + from + '_' + to + '&compact=y&apiKey=' + apiKey,
+            type: 'GET',
+            success: function() {}
+          })
+        );
+      }
+    </script>
+  </body>
+</html>
